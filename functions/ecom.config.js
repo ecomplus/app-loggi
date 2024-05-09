@@ -7,8 +7,8 @@
 
 const app = {
   app_id: 129446,
-  title: 'My Awesome E-Com Plus App',
-  slug: 'my-awesome-app',
+  title: 'Loggi',
+  slug: 'loggi',
   type: 'external',
   state: 'active',
   authentication: true,
@@ -22,7 +22,7 @@ const app = {
      * Triggered to calculate shipping options, must return values and deadlines.
      * Start editing `routes/ecom/modules/calculate-shipping.js`
      */
-    // calculate_shipping:   { enabled: true },
+    calculate_shipping:   { enabled: true },
 
     /**
      * Triggered to validate and apply discount value, must return discount and conditions.
@@ -54,7 +54,7 @@ const app = {
       'POST'           // Create procedures to receive webhooks
     ],
     products: [
-      // 'GET',           // Read products with public and private fields
+      'GET',           // Read products with public and private fields
       // 'POST',          // Create products
       // 'PATCH',         // Edit products
       // 'PUT',           // Overwrite products
@@ -75,16 +75,16 @@ const app = {
       // 'DELETE',        // Delete categories
     ],
     customers: [
-      // 'GET',           // List/read customers
+      'GET',           // List/read customers
       // 'POST',          // Create customers
       // 'PATCH',         // Edit customers
       // 'PUT',           // Overwrite customers
       // 'DELETE',        // Delete customers
     ],
     orders: [
-      // 'GET',           // List/read orders with public and private fields
+      'GET',           // List/read orders with public and private fields
       // 'POST',          // Create orders
-      // 'PATCH',         // Edit orders
+      'PATCH',         // Edit orders
       // 'PUT',           // Overwrite orders
       // 'DELETE',        // Delete orders
     ],
@@ -101,7 +101,7 @@ const app = {
      */
     'orders/fulfillments': [
       // 'GET',           // List/read order fulfillment and tracking events
-      // 'POST',          // Create fulfillment event with new status
+      'POST',          // Create fulfillment event with new status
       // 'DELETE',        // Delete fulfillment event
     ],
     'orders/payments_history': [
@@ -138,37 +138,40 @@ const app = {
   },
 
   admin_settings: {
-    /**
-     * JSON schema based fields to be configured by merchant and saved to app `data` / `hidden_data`, such as:
-
-     webhook_uri: {
+    zip: {
+      schema: {
+        type: 'string',
+        maxLength: 9,
+        pattern: '^[0-9]{5}-?[0-9]{3}$',
+        title: 'CEP de origem'
+      },
+      hide: true
+    },
+     client_id: {
        schema: {
          type: 'string',
          maxLength: 255,
          format: 'uri',
-         title: 'Notifications URI',
-         description: 'Unique notifications URI available on your Custom App dashboard'
+         title: 'Client Id'
        },
        hide: true
      },
-     token: {
+     client_secret: {
        schema: {
          type: 'string',
-         maxLength: 50,
-         title: 'App token'
+         maxLength: 255,
+         title: 'Client Secret'
        },
        hide: true
      },
-     opt_in: {
+     company_id: {
        schema: {
-         type: 'boolean',
-         default: false,
-         title: 'Some config option'
+         type: 'string',
+         maxLength: 10,
+         title: 'ID'
        },
        hide: false
      },
-
-     */
   }
 }
 
@@ -181,52 +184,25 @@ const procedures = []
 
 /**
  * Uncomment and edit code above to configure `triggers` and receive respective `webhooks`:
-
+*/
 const { baseUri } = require('./__env')
 
 procedures.push({
   title: app.title,
 
   triggers: [
-    // Receive notifications when new order is created:
-    {
-      resource: 'orders',
-      action: 'create',
-    },
+
 
     // Receive notifications when order financial/fulfillment status are set or changed:
     // Obs.: you probably SHOULD NOT enable the orders triggers below and the one above (create) together.
     {
       resource: 'orders',
-      field: 'financial_status',
+      field: 'invoices',
     },
     {
       resource: 'orders',
       field: 'fulfillment_status',
-    },
-
-    // Receive notifications when products/variations stock quantity changes:
-    {
-      resource: 'products',
-      field: 'quantity',
-    },
-    {
-      resource: 'products',
-      subresource: 'variations',
-      field: 'quantity'
-    },
-
-    // Receive notifications when cart is edited:
-    {
-      resource: 'carts',
-      action: 'change',
-    },
-
-    // Receive notifications when customer is deleted:
-    {
-      resource: 'customers',
-      action: 'delete',
-    },
+    }
 
     // Feel free to create custom combinations with any Store API resource, subresource, action and field.
   ],
@@ -242,7 +218,7 @@ procedures.push({
     }
   ]
 })
-
+/*
  * You may also edit `routes/ecom/webhook.js` to treat notifications properly.
  */
 
