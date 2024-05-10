@@ -115,12 +115,12 @@
       },
       "hide": false
     },
-    "use_kubic_weight": {
+    "use_bigger_box": {
       "schema": {
-        "title": "Utilizar cotação cubagem",
         "type": "boolean",
-        "description": "Indicado apenas para produtos grandes. Acima de 36 cm de lado. A kangu tem um cálculo falho para produtos maiores e mais de uma unidade por pedido",
-        "default": false
+        "default": false,
+        "title": "Calcular considerando apenas uma caixa",
+        "description": "Se selecionado as dimensões não serão somadas, considerando o maior valor de cada dimensão entre os itens"
       },
       "hide": false
     },
@@ -488,6 +488,26 @@
                 }
               }
             }
+          }
+        }
+      },
+      "hide": true
+    },
+    "seller": {
+      "schema": {
+        "type": "object",
+        "title": "Dados do remetente",
+        "description": "Configure informações de remetente para etiqueta.",
+        "properties": {
+          "doc_number": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "CPF/CNPJ sem pontuação"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Nome da empresa ou loja"
           }
         }
       },
