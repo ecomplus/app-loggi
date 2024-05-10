@@ -201,7 +201,6 @@ exports.post = ({ appSdk }, req, res) => {
 
     params.items.forEach((item) => {
       const { quantity, dimensions, weight } = item
-      unit += quantity
       cartSubtotal += (quantity * ecomUtils.price(item))
       if (weight && weight.value) {
         let weightValue
