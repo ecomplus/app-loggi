@@ -74,7 +74,7 @@ exports.post = ({ appSdk }, req, res) => {
   const parseAddress = address => {
     const correios = {
     }
-    [
+    ;[
       ['logradouro', 'street'],
       ['numero', 'number'],
       ['complemento', 'complement'],
