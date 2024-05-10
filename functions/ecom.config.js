@@ -172,6 +172,419 @@ const app = {
        },
        hide: false
      },
+     posting_deadline: {
+      schema: {
+        title: 'Prazo de postagem',
+        type: 'object',
+        required: ['days'],
+        additionalProperties: false,
+        properties: {
+          days: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 999999,
+            title: 'Número de dias',
+            description: 'Dias de prazo para postar os produtos após a compra'
+          },
+          working_days: {
+            type: 'boolean',
+            default: true,
+            title: 'Dias úteis'
+          },
+          after_approval: {
+            type: 'boolean',
+            default: true,
+            title: 'Após aprovação do pagamento'
+          }
+        }
+      },
+      hide: false
+     },
+     additional_price: {
+      schema: {
+        type: 'number',
+        minimum: -999999,
+        maximum: 999999,
+        title: 'Custo adicional',
+        description: 'Valor a adicionar (negativo para descontar) no frete calculado em todas regras'
+      },
+      hide: false
+    },
+     use_kubic_weight: {
+      schema: {
+        title: 'Utilizar cotação cubagem',
+        type: 'boolean',
+        description: 'Indicado apenas para produtos grandes. Acima de 36 cm de lado. A kangu tem um cálculo falho para produtos maiores e mais de uma unidade por pedido',
+        default: false
+
+      },
+      hide: false
+    },
+    shipping_rules: {
+      schema: {
+        title: 'Regras de envio',
+        description: 'Aplicar descontos/adicionais condiciAtivar regiões',
+        type: 'array',
+        maxItems: 300,
+        items: {
+          title: 'Regra de envio',
+          type: 'object',
+          minProperties: 1,
+          properties: {
+            service_name: {
+              type: 'string',
+              title: 'Nome do serviço'
+            },
+            zip_range: {
+              title: 'Faixa de CEP',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            },
+            min_amount: {
+              type: 'number',
+              minimum: 1,
+              maximum: 999999999,
+              title: 'Valor mínimo da compra'
+            },
+            discount: {
+              title: 'Desconto',
+              type: 'object',
+              required: [
+                'value'
+              ],
+              properties: {
+                percentage: {
+                  type: 'boolean',
+                  default: false,
+                  title: 'Desconto percentual'
+                },
+                value: {
+                  type: 'number',
+                  minimum: -99999999,
+                  maximum: 99999999,
+                  title: 'Valor do desconto',
+                  description: 'Valor percentual/fixo do desconto ou acréscimo (negativo)'
+                }
+              }
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    enable_auto_tag: {
+      schema: {
+        type: 'boolean',
+        default: false,
+        title: 'Ativar geração de envios a Kangu',
+        description: 'Ativar a criação automática de tags de envio para Kangu'
+      },
+      hide: false
+    },
+    from: {
+      schema: {
+        type: 'object',
+        title: 'Endereço do remetente',
+        description: 'Configure endereço de remetente para etiqueta.',
+        properties: {
+          street: {
+            type: 'string',
+            maxLength: 200,
+            title: 'Digite a rua'
+          },
+          number: {
+            type: 'integer',
+            min: 1,
+            max: 9999999,
+            title: 'Digite o número da residência'
+          },
+          complement: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Complemento'
+          },
+          borough: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Bairro'
+          },
+          city: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Cidade'
+          },
+          province_code: {
+            type: 'string',
+            title: 'Sigla do Estado',
+            enum: [
+              'AC',
+              'AL',
+              'AP',
+              'AM',
+              'BA',
+              'CE',
+              'DF',
+              'ES',
+              'GO',
+              'MA',
+              'MT',
+              'MS',
+              'MG',
+              'PA',
+              'PB',
+              'PR',
+              'PE',
+              'PI',
+              'RR',
+              'RO',
+              'RJ',
+              'RS',
+              'RN',
+              'SC',
+              'SP',
+              'SE',
+              'TO'
+            ]
+          }
+        }
+      },
+      hide: true
+    },
+    send_tag_status: {
+      schema: {
+        type: 'string',
+        title: 'Status para envio de etiqueta',
+        enum: [
+          'Pago',
+          'Em produção',
+          'Em separação',
+          'Pronto para envio',
+          'NF emitida',
+          'Enviado'
+        ],
+        default: 'Pronto para envio'
+      },
+      hide: false
+    },
+    unavailable_for: {
+      schema: {
+        type: 'array',
+        title: 'Desativar serviços',
+        description: 'É possível desabilitar determinados serviços de envio para determinadas faixas de cep ou para todo o Brasil.',
+        uniqueItems: true,
+        items: {
+          type: 'object',
+          required: [
+            'service_name'
+          ],
+          properties: {
+            zip_range: {
+              title: 'Faixa de CEP',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            },
+            service_name: {
+              type: 'string',
+              title: 'Serviço',
+              description: 'Nome do serviço que será desabilitado, ex: SEDEX'
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    free_shipping_rules: {
+      schema: {
+        title: 'Regras de frete grátis',
+        description: 'Deve ser configurado em conformidade ao que foi configurado na Kangu',
+        type: 'array',
+        maxItems: 300,
+        items: {
+          title: 'Regra de frete grátis',
+          type: 'object',
+          minProperties: 1,
+          properties: {
+            zip_range: {
+              title: 'Faixa de CEP',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            },
+            min_amount: {
+              type: 'number',
+              minimum: 1,
+              maximum: 999999999,
+              title: 'Valor mínimo da compra'
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    services: {
+      schema: {
+        title: 'Rótulo dos Serviços',
+        description: 'Para alterar o nome de exibição de algum serviço basta infomar o código do serviço e um novo rótulo de exibição. ',
+        type: 'array',
+        maxItems: 6,
+        items: {
+          title: 'Serviço de entrega',
+          type: 'object',
+          required: [
+            'service_name',
+            'label'
+          ],
+          properties: {
+            service_name: {
+              type: 'string',
+              title: 'Serviço',
+              default: 'PAC',
+              description: 'Nome oficial do serviço na transportadora'
+            },
+            label: {
+              type: 'string',
+              maxLength: 50,
+              title: 'Rótulo',
+              description: 'Nome do serviço exibido aos clientes'
+            }
+          }
+        }
+      },
+      hide: true
+    },
+    warehouses: {
+      schema: {
+        title: 'Armazéns (multi CD)',
+        description: 'Origens e destinos para cada centro de distribuição',
+        type: 'array',
+        maxItems: 30,
+        items: {
+          title: 'Centro de distribuição',
+          type: 'object',
+          required: ['zip'],
+          additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              maxLength: 30,
+              pattern: '^[A-Za-z0-9-_]{2,30}$',
+              title: 'Código do CD'
+            },
+            doc: {
+              type: 'string',
+              maxLength: 255,
+              title: 'Documento da filial',
+              description: 'CNPJ da filial associado à sua conta Kangu'
+            },
+            zip: {
+              type: 'string',
+              maxLength: 9,
+              pattern: '^[0-9]{5}-?[0-9]{3}$',
+              title: 'CEP de origem',
+              description: 'Código postal do remetente para cálculo do frete'
+            },
+            posting_deadline: {
+              title: 'Prazo de envio do CD',
+              type: 'object',
+              required: ['days'],
+              additionalProperties: false,
+              properties: {
+                days: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 999999,
+                  title: 'Número de dias',
+                  description: 'Dias de prazo para postar os produtos após a compra'
+                },
+                working_days: {
+                  type: 'boolean',
+                  default: true,
+                  title: 'Dias úteis'
+                },
+                after_approval: {
+                  type: 'boolean',
+                  default: true,
+                  title: 'Após aprovação do pagamento'
+                }
+              }
+            },
+            zip_range: {
+              title: 'Faixa de CEP atendida',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            }
+          }
+        }
+      },
+      hide: true
+    }
   }
 }
 
