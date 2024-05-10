@@ -35,7 +35,7 @@ exports.post = ({ appSdk }, req, res) => {
   const loggiAxios = new LoggiAxios(client_id, client_secret, storeId)
 
   const disableShippingRules = appData.unavailable_for
-  if (!token) {
+  if (!client_id) {
     // must have configured kangu doc number and token
     return res.status(409).send({
       error: 'CALCULATE_AUTH_ERR',
