@@ -302,6 +302,7 @@ exports.post = ({ appSdk }, req, res) => {
       })
     })
     .then(({ data, status }) => {
+      console.log('loggi result', JSON.stringify(data))
         let result
         if (typeof data === 'string') {
           try {
