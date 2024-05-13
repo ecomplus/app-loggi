@@ -96,12 +96,11 @@ exports.post = ({ appSdk }, req, res) => {
   }
 
   const parseAddress = async address => {
-    console.log('Parse address', JSON.stringify(address))
     let newAddress = address
     const correios = {
     }
     if (!address.city && address.zip) {
-      const addressViaCep = await getAddress(zip)
+      const addressViaCep = await getAddress(address.zip)
       newAddress = {
         ...address,
         ...addressViaCep
