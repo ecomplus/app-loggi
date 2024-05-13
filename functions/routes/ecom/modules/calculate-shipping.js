@@ -96,6 +96,7 @@ exports.post = ({ appSdk }, req, res) => {
   }
 
   const parseAddress = async address => {
+    console.log('Parse address', JSON.stringify(address))
     let newAddress = address
     const correios = {
     }
@@ -214,8 +215,7 @@ exports.post = ({ appSdk }, req, res) => {
         unit: 'g'
       }
     }
-    let finalWeight = 0
-    let finalPhysicalWeight = 0
+
     let cartSubtotal = 0
     function convertToUnitsAndNanos(amount) {
       let units = String(Math.trunc(amount));
