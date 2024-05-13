@@ -97,6 +97,7 @@ exports.post = ({ appSdk }, req, res) => {
 
   const parseAddress = async address => {
     let newAddress = address
+    console.log('before address', JSON.stringify(newAddress))
     const correios = {
     }
     if (!address.city && address.zip) {
@@ -106,6 +107,7 @@ exports.post = ({ appSdk }, req, res) => {
         ...addressViaCep
       }
     }
+    console.log('new address', JSON.stringify(newAddress))
     ;[
       ['logradouro', 'street'],
       ['numero', 'number'],
