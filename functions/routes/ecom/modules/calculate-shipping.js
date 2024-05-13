@@ -38,6 +38,8 @@ exports.post = ({ appSdk }, req, res) => {
     };
     try {
       const { data } = await axios.request(options);
+      console.log('data form viacep', JSON.stringify(data)
+      )
       if (data && data.uf && data.localidade) {
         destination.city = data.localidade
         destination.province_code = data.uf.toUpperCase()
@@ -45,6 +47,7 @@ exports.post = ({ appSdk }, req, res) => {
     } catch (error) {
       console.log('didnt return address');
     }
+    console.log('destination', JSON.stringify(destination))
     return destination
   }
 
@@ -71,8 +74,6 @@ exports.post = ({ appSdk }, req, res) => {
   if (appData.free_shipping_from_value >= 0) {
     response.free_shipping_from_value = appData.free_shipping_from_value
   }
-
-  const useKubicWeight = appData.use_kubic_weight
 
   const destinationZip = params.to ? params.to.zip.replace(/\D/g, '') : ''
 
