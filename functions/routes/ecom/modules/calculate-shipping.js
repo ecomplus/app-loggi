@@ -24,6 +24,30 @@ exports.post = ({ appSdk }, req, res) => {
   // merge all app options configured by merchant
   const appData = Object.assign({}, application.data, application.hidden_data)
 
+  const getAddress = async (zip) => {
+    const destination = {
+      "city": "Manaus",
+      "province_code": "AM",
+      "country":  "Brasil"
+    }
+
+    const options = {
+      method: 'GET', 
+      url: `https://viacep.com.br/ws/${zip}/json/`,
+      timeout: 5000
+    };
+    try {
+      const { data } = await axios.request(options);
+      if (data && data.uf && data.localidade) {
+        destination.city = data.localidade
+        destination.province_code = data.uf.toUpperCase()
+      }
+    } catch (error) {
+      console.log('didnt return address');
+    }
+    return destination
+  }
+
   let shippingRules
   if (Array.isArray(appData.shipping_rules) && appData.shipping_rules.length) {
     shippingRules = appData.shipping_rules
@@ -71,8 +95,16 @@ exports.post = ({ appSdk }, req, res) => {
     return true
   }
 
-  const parseAddress = address => {
+  const parseAddress = async address => {
+    let newAddress = address
     const correios = {
+    }
+    if (!address.city && address.zip) {
+      const addressViaCep = await getAddress(zip)
+      newAddress = {
+        ...address,
+        ...addressViaCep
+      }
     }
     ;[
       ['logradouro', 'street'],
@@ -83,7 +115,7 @@ exports.post = ({ appSdk }, req, res) => {
       ['cidade', 'city'],
       ['uf', 'province_code']
     ].forEach(item => {
-      correios[item[0]] = String(address[item[1]])
+      correios[item[0]] = String(newAddress[item[1]])
     })
     
     return correios
