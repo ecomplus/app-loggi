@@ -416,12 +416,6 @@ exports.post = async ({ appSdk }, req, res) => {
                   ...postDeadline
                 },
                 package: pkg,
-                custom_fields: [
-                  {
-                    field: 'loggi_pickup',
-                    value: loggiService.pickup_type
-                  }
-                ],
                 flags: ['loggi-ws', `loggi-${serviceCode}`.substr(0, 20)]
               }
               if (!lowestPriceShipping || lowestPriceShipping.price > price) {
