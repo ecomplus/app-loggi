@@ -528,7 +528,6 @@ exports.post = async ({ appSdk }, req, res) => {
       .catch(err => {
         let { message, response } = err
         console.log('>> Loggi message error', message)
-        console.log('>> Loggi response error', response)
 
         if (response && response.data) {
           // try to handle Loggi error response
