@@ -1,54 +1,49 @@
 const createAxios = require('./create-axios')
 const auth = require('./create-auth')
+const { Timestamp } = require('firebase-admin/firestore')
 
 const firestoreColl = 'loggi_tokens'
-module.exports = function (clientId, clientSecret, storeId) {
-  const self = this
 
-  let documentRef
+module.exports = async function (clientId, clientSecret, storeId) {
+  let docRef
   if (firestoreColl) {
-    documentRef = require('firebase-admin')
+    docRef = require('firebase-admin')
       .firestore()
       .doc(`${firestoreColl}/${storeId}`)
   }
+  const docSnapshot = await docRef.get()
+  let accessToken
+  if (docSnapshot.exists) {
+    const {
+      idToken,
+      expiredAt
+    } = docSnapshot.data()
 
-  this.preparing = new Promise((resolve, reject) => {
-    const authenticate = (token) => {
-      self.axios = createAxios(token)
-      resolve(self)
-    }
-
-    const handleAuth = () => {
-      console.log('> Loggi Auth02 ', storeId)
-      auth(clientId, clientSecret, storeId)
-        .then((data) => {
-          console.log('> Loggi token => ', data)
-          authenticate(data.idToken)
-          if (documentRef) {
-            documentRef.set({
-              ...data,
-              updatedAt: new Date().toISOString()
-            }).catch(console.error)
-          }
-        })
-        .catch(reject)
-    }
-
-    if (documentRef) {
-      documentRef.get()
-        .then((documentSnapshot) => {
-          if (documentSnapshot.exists &&
-            Date.now() - documentSnapshot.updateTime.toDate().getTime() <= 60 * 60 * 1000 // token expires in 60 min
-          ) {
-            authenticate(documentSnapshot.get('idToken'))
-          } else {
-            handleAuth()
-          }
-        })
-        .catch(console.error)
+    const now = Timestamp.now()
+    if (now.toMillis() + 9000 < expiredAt.toMillis()) {
+      accessToken = idToken
     } else {
-      handleAuth()
+      try {
+        const data = await auth(clientId, clientSecret, storeId)
+        docRef.set({
+          ...data,
+          updatedAt: now,
+          expiredAt: Timestamp.fromMillis(now.toMillis() + ((data.expiresIn - 3600) * 1000))
+        }, { merge: true })
+        accessToken = data.idToken
+      } catch (err) {
+        console.log('Cant refresh Loggi OAtuh token', {
+          url: err.config.url,
+          body: err.config.data,
+          response: err.response.data,
+          status: err.response.status
+        })
+        throw err
+      }
     }
-  })
-}
+  } else {
+    throw Error('No Loggi token document')
+  }
 
+  return createAxios(accessToken)
+}
