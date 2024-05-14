@@ -54,7 +54,7 @@ module.exports = async function (clientId, clientSecret, storeId) {
           }).catch(console.error)
         }
       })
-      .catch(reject)
+      .catch(err => console.log(err))
   }
 
   return createAxios(accessToken)
