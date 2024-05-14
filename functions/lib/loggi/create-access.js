@@ -45,6 +45,7 @@ module.exports = async function (clientId, clientSecret, storeId) {
     auth(clientId, clientSecret, storeId)
       .then((data) => {
         console.log('> Loggi token => ', data)
+        accessToken = data.idToken
         if (documentRef) {
           documentRef.set({
             ...data,
