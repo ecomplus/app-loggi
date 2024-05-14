@@ -23,7 +23,8 @@ exports.post = async ({ appSdk }, req, res) => {
   }
   // merge all app options configured by merchant
   const appData = Object.assign({}, application.data, application.hidden_data)
-
+  const { client_id, client_secret, company_id } = appData
+  const loggiAxios = new LoggiAxios(client_id, client_secret, storeId)
   const getAddress = async (zip) => {
     const destination = {
       "city": "Manaus",
@@ -57,8 +58,6 @@ exports.post = async ({ appSdk }, req, res) => {
     shippingRules = []
   }
 
-  const { client_id, client_secret, company_id } = appData
-  const loggiAxios = new LoggiAxios(client_id, client_secret, storeId)
 
   const disableShippingRules = appData.unavailable_for
   if (!client_id) {
@@ -330,18 +329,15 @@ exports.post = async ({ appSdk }, req, res) => {
     }
 
     // send POST request to kangu REST API
-    loggiAxios.preparing
-    .then(() => {
-      const { axios } = loggiAxios
-      console.log('> Quote: ', JSON.stringify(body), ' <<')
-      // https://axios-http.com/ptbr/docs/req_config
-      const validateStatus = function (status) {
-        return status >= 200 && status <= 301
-      }
-      return axios.post(`/v1/companies/${company_id}/quotations`, body, { 
-        maxRedirects: 0,
-        validateStatus
-      })
+    const { axios } = loggiAxios
+    console.log('> Quote: ', JSON.stringify(body), ' <<')
+    // https://axios-http.com/ptbr/docs/req_config
+    const validateStatus = function (status) {
+      return status >= 200 && status <= 301
+    }
+    return axios.post(`/v1/companies/${company_id}/quotations`, body, { 
+      maxRedirects: 0,
+      validateStatus
     })
     .then(({ data, status }) => {
         let result
