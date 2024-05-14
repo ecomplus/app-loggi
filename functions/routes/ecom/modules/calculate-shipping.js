@@ -145,6 +145,7 @@ exports.post = async ({ appSdk }, req, res) => {
     let newAddress = address
     console.log('before address', JSON.stringify(newAddress))
     const correios = {
+      correios: {}
     }
     if (!address.city && address.zip) {
       const addressViaCep = await getAddress(address.zip)
@@ -164,7 +165,7 @@ exports.post = async ({ appSdk }, req, res) => {
       ['uf', 'province_code']
     ].forEach(item => {
       if (newAddress[item[1]]) {
-        correios[item[0]] = String(newAddress[item[1]])
+        correios['correios'][item[0]] = String(newAddress[item[1]])
       }
     })
     
