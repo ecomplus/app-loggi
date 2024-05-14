@@ -46,8 +46,8 @@ module.exports = async function (clientId, clientSecret, storeId) {
       .then((data) => {
         console.log('> Loggi token => ', data)
         accessToken = data.idToken
-        if (documentRef) {
-          documentRef.set({
+        if (docRef) {
+          docRef.set({
             ...data,
             updatedAt: now,
             expiredAt: Timestamp.fromMillis(now.toMillis() + ((data.expiresIn - 3600) * 1000))
