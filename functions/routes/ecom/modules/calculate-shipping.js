@@ -44,6 +44,8 @@ exports.post = async ({ appSdk }, req, res) => {
       if (data && data.uf && data.localidade) {
         destination.city = data.localidade
         destination.province_code = data.uf.toUpperCase()
+        destination.street = data.logradouro
+        destination.borough = data.bairro
       }
     } catch (error) {
       console.log('didnt return address', error);
@@ -97,33 +99,6 @@ exports.post = async ({ appSdk }, req, res) => {
     return true
   }
 
-  const parseAddress = async address => {
-    let newAddress = address
-    console.log('before address', JSON.stringify(newAddress))
-    const correios = {
-    }
-    if (!address.city && address.zip) {
-      const addressViaCep = await getAddress(address.zip)
-      newAddress = {
-        ...address,
-        ...addressViaCep
-      }
-    }
-    console.log('new address', JSON.stringify(newAddress))
-    ;[
-      ['logradouro', 'street'],
-      ['numero', 'number'],
-      ['complemento', 'complement'],
-      ['bairro', 'borough'],
-      ['cep', 'zip'],
-      ['cidade', 'city'],
-      ['uf', 'province_code']
-    ].forEach(item => {
-      correios[item[0]] = String(newAddress[item[1]])
-    })
-    
-    return correios
-  }
 
   let originZip, warehouseCode, docNumber, postingDeadline
   let isWareHouse = false
@@ -160,6 +135,41 @@ exports.post = async ({ appSdk }, req, res) => {
     originZip = appData.zip
   }
   originZip = typeof originZip === 'string' ? originZip.replace(/\D/g, '') : ''
+
+  const senderAddress = {
+    zip: originZip,
+    ...appData.from
+  }
+
+  const parseAddress = async address  => {
+    let newAddress = address
+    console.log('before address', JSON.stringify(newAddress))
+    const correios = {
+    }
+    if (!address.city && address.zip) {
+      const addressViaCep = await getAddress(address.zip)
+      newAddress = {
+        ...address,
+        ...addressViaCep
+      }
+    }
+    console.log('new address', JSON.stringify(newAddress))
+    ;[
+      ['logradouro', 'street'],
+      ['numero', 'number'],
+      ['complemento', 'complement'],
+      ['bairro', 'borough'],
+      ['cep', 'zip'],
+      ['cidade', 'city'],
+      ['uf', 'province_code']
+    ].forEach(item => {
+      if (newAddress[item[1]]) {
+        correios[item[0]] = String(newAddress[item[1]])
+      }
+    })
+    
+    return correios
+  }
 
   // search for configured free shipping rule
   if (Array.isArray(appData.free_shipping_rules)) {
@@ -302,7 +312,7 @@ exports.post = async ({ appSdk }, req, res) => {
     })
 
     const { units, nanos } = convertToUnitsAndNanos(cartSubtotal)
-    const shipFrom = parseAddress(appData.from)
+    const shipFrom = await parseAddress(senderAddress)
     const shipTo = await parseAddress(params.to)
 
     const body = {
@@ -396,7 +406,7 @@ exports.post = async ({ appSdk }, req, res) => {
               const shippingLine = {
                 from: {
                   ...params.from,
-                  ...appData.from,
+                  ...senderAddress,
                   zip: originZip
                 },
                 to: params.to,
