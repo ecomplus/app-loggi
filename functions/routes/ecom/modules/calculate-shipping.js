@@ -302,10 +302,12 @@ exports.post = ({ appSdk }, req, res) => {
     })
 
     const { units, nanos } = convertToUnitsAndNanos(cartSubtotal)
+    const shipFrom = parseAddress(appData.from)
+    const shipTo = await parseAddress(params.to)
 
     const body = {
-      shipFrom: parseAddress(appData.from),
-      shipTo: parseAddress(params.to),
+      shipFrom,
+      shipTo,
       pickupTypes: [
         "PICKUP_TYPE_MILK_RUN"
       ], 
