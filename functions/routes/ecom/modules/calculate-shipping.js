@@ -453,7 +453,7 @@ exports.post = async ({ appSdk }, req, res) => {
               }
 
               // search for discount by shipping rule
-              const shippingName = loggiService.transp_nome || loggiService.descricao
+              const shippingName = loggiService.freightTypeLabel
               if (Array.isArray(shippingRules)) {
                 for (let i = 0; i < shippingRules.length; i++) {
                   const rule = shippingRules[i]
@@ -491,18 +491,15 @@ exports.post = async ({ appSdk }, req, res) => {
                 }
               }
 
-              const serviceCodeName = shippingName.replaceAll(' ', '_').toLowerCase()
 
               response.shipping_services.push({
                 label,
                 carrier: loggiService.transp_nome,
                 carrier_doc_number: isWareHouse && docNumber
                 ? docNumber
-                : typeof loggiService.cnpjTransp === 'string'
-                  ? loggiService.cnpjTransp.replace(/\D/g, '').substr(0, 19)
-                  : undefined,
-                service_name: serviceCode || loggiService.descricao,
-                service_code: serviceCodeName.substring(0, 70),
+                : '24217653000195',
+                service_name: 'Loggi',
+                service_code: serviceCode,
                 shipping_line: shippingLine
               })
             }
