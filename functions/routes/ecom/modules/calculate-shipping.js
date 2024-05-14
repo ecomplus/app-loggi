@@ -399,7 +399,8 @@ exports.post = async ({ appSdk }, req, res) => {
             if (!disableShipping) {
               // parse to E-Com Plus shipping line object
               const serviceCode = String(loggiService.freightType)
-              const price = convertToDecimal(Number(loggiService.totalAmount.units), loggiService.totalAmount.nanos)
+              const priceLoggi = loggiService.price && loggiService.price.totalAmount
+              const price = convertToDecimal(Number(priceLoggi.units), priceLoggi.nanos)
               const postDeadline = isWareHouse && postingDeadline 
                 ? postingDeadline
                 : appData.posting_deadline
