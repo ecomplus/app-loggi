@@ -13,13 +13,13 @@ module.exports = async function (clientId, clientSecret, storeId) {
   }
   const docSnapshot = await docRef.get()
   let accessToken
+  const now = Timestamp.now()
   if (docSnapshot.exists) {
     const {
       idToken,
       expiredAt
     } = docSnapshot.data()
 
-    const now = Timestamp.now()
     if (now.toMillis() + 9000 < expiredAt.toMillis()) {
       accessToken = idToken
     } else {
@@ -42,7 +42,18 @@ module.exports = async function (clientId, clientSecret, storeId) {
       }
     }
   } else {
-    throw Error('No Loggi token document')
+    auth(clientId, clientSecret, storeId)
+      .then((data) => {
+        console.log('> Loggi token => ', data)
+        if (documentRef) {
+          documentRef.set({
+            ...data,
+            updatedAt: now,
+            expiredAt: Timestamp.fromMillis(now.toMillis() + ((data.expiresIn - 3600) * 1000))
+          }).catch(console.error)
+        }
+      })
+      .catch(reject)
   }
 
   return createAxios(accessToken)
