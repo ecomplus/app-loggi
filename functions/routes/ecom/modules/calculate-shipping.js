@@ -564,5 +564,7 @@ exports.post = async ({ appSdk }, req, res) => {
     })
   }
 
-  res.send(response)
+  if (!res.headersSent) {
+    res.send(response)
+  }
 }
