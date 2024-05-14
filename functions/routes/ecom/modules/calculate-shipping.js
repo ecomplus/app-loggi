@@ -25,7 +25,6 @@ exports.post = async ({ appSdk }, req, res) => {
   const appData = Object.assign({}, application.data, application.hidden_data)
 
   const getAddress = async (zip) => {
-    console.log('zip is', JSON.stringify(zip))
     const destination = {
       "city": "Manaus",
       "province_code": "AM",
@@ -39,8 +38,6 @@ exports.post = async ({ appSdk }, req, res) => {
     };
     try {
       const { data } = await axios.request(options);
-      console.log('data form viacep', JSON.stringify(data)
-      )
       if (data && data.uf && data.localidade) {
         destination.city = data.localidade
         destination.province_code = data.uf.toUpperCase()
@@ -50,7 +47,6 @@ exports.post = async ({ appSdk }, req, res) => {
     } catch (error) {
       console.log('didnt return address', error);
     }
-    console.log('destination', JSON.stringify(destination))
     return destination
   }
 
@@ -143,7 +139,6 @@ exports.post = async ({ appSdk }, req, res) => {
 
   const parseAddress = async address  => {
     let newAddress = address
-    console.log('before address', JSON.stringify(newAddress))
     const correios = {
       correios: {}
     }
@@ -154,7 +149,6 @@ exports.post = async ({ appSdk }, req, res) => {
         ...addressViaCep
       }
     }
-    console.log('new address', JSON.stringify(newAddress))
     ;[
       ['logradouro', 'street'],
       ['numero', 'number'],
@@ -350,7 +344,6 @@ exports.post = async ({ appSdk }, req, res) => {
       })
     })
     .then(({ data, status }) => {
-      console.log('loggi result', JSON.stringify(data))
         let result
         if (typeof data === 'string') {
           try {
@@ -387,7 +380,6 @@ exports.post = async ({ appSdk }, req, res) => {
                 ) {
                   console.log('inside disable shipping')
                   const unavailable = disableShippingRules[i]
-                  console.log('inside disable shipping', JSON.stringify(unavailable))
                   if (
                     matchService(unavailable, loggiService.freightTypeLabel)
                   ) {
