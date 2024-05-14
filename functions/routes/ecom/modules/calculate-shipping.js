@@ -502,10 +502,8 @@ exports.post = async ({ appSdk }, req, res) => {
               lowestPriceShipping.discount = discount
             }
           }
-          console.log('sending request')
           res.send(response)
         } else {
-          // console.log(data)
           const err = new Error('Invalid Loggi calculate response', storeId, JSON.stringify(body))
           err.response = { data, status }
           throw err
