@@ -3,7 +3,6 @@ const ecomUtils = require('@ecomplus/utils')
 const LoggiAxios = require('../../../lib/loggi/create-access')
 
 exports.post = async ({ appSdk }, req, res) => {
-  console.log('log req', JSON.stringify(req))
   /**
    * Treat `params` and (optionally) `application` from request body to properly mount the `response`.
    * JSON Schema reference for Calculate Shipping module objects:
