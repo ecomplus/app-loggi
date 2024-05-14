@@ -366,7 +366,7 @@ exports.post = async ({ appSdk }, req, res) => {
           result = data
         }
 
-        if (result && Number(status) === 200 && Array.isArray(result)) {
+        if (result && Number(status) === 200 && result.packagesQuotations) {
           // success response
           console.log('Quote with success', storeId)
           let lowestPriceShipping
