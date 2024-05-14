@@ -183,7 +183,12 @@ exports.post = async ({ appSdk }, req, res) => {
   if (!params.to) {
     // just a free shipping preview with no shipping address received
     // respond only with free shipping option
-    res.send(response)
+    if (!res.headersSent) {
+      res.status(409).send({
+        error: 'CALCULATE_ERR',
+        message: 'No destination param'
+      })
+    }
     return
   }
 
@@ -329,15 +334,18 @@ exports.post = async ({ appSdk }, req, res) => {
     }
 
     // send POST request to kangu REST API
-    const { axios } = loggiAxios
-    console.log('> Quote: ', JSON.stringify(body), ' <<')
-    // https://axios-http.com/ptbr/docs/req_config
-    const validateStatus = function (status) {
-      return status >= 200 && status <= 301
-    }
-    return axios.post(`/v1/companies/${company_id}/quotations`, body, { 
-      maxRedirects: 0,
-      validateStatus
+    loggiAxios.preparing
+    .then(() => {
+      const { axios } = loggiAxios
+      console.log('> Quote: ', JSON.stringify(body), ' <<')
+      // https://axios-http.com/ptbr/docs/req_config
+      const validateStatus = function (status) {
+        return status >= 200 && status <= 301
+      }
+      return axios.post(`/v1/companies/${company_id}/quotations`, body, { 
+        maxRedirects: 0,
+        validateStatus
+      })
     })
     .then(({ data, status }) => {
         let result
@@ -504,6 +512,7 @@ exports.post = async ({ appSdk }, req, res) => {
               lowestPriceShipping.discount = discount
             }
           }
+          console.log('sending request')
           res.send(response)
         } else {
           // console.log(data)
