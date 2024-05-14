@@ -25,6 +25,7 @@ exports.post = ({ appSdk }, req, res) => {
   const appData = Object.assign({}, application.data, application.hidden_data)
 
   const getAddress = async (zip) => {
+    console.log('zip is', JSON.stringify(zip))
     const destination = {
       "city": "Manaus",
       "province_code": "AM",
@@ -45,7 +46,7 @@ exports.post = ({ appSdk }, req, res) => {
         destination.province_code = data.uf.toUpperCase()
       }
     } catch (error) {
-      console.log('didnt return address');
+      console.log('didnt return address', error);
     }
     console.log('destination', JSON.stringify(destination))
     return destination
