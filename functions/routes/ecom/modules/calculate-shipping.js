@@ -322,9 +322,9 @@ exports.post = async ({ appSdk }, req, res) => {
       ], 
       packages: [{
         weightG: pkg.weight.value,
-        lengthCm: pkg.dimensions.length.value,
-        widthCm: pkg.dimensions.height.value,
-        heightCm: pkg.dimensions.width.value,
+        lengthCm: pkg.dimensions.length.value || 10,
+        widthCm: pkg.dimensions.height.value || 10,
+        heightCm: pkg.dimensions.width.value || 10,
         goodsValue: {
           currencyCode: 'BRL',
           units,
